@@ -1,90 +1,83 @@
 #!/usr/bin/etc python
 
-import nltk
-from collections import defaultdict
 import json
-import os.path as path
+import math
+import csv
 
-def LoadLanguageResource():
-        WeightRules=defaultdict(int)
-        nounlist = ['NN', 'NNS', 'NNP', 'NNPS','PRP']
-        verblist = ['VBP','VB','VBG','VBZ']
-        whlist = ['WDT','WP','WP$','WRB']
-        for noun in nounlist:
-                WeightRules[noun] = 3
-        for verb in verblist:
-                WeightRules[verb] =1
-        for wh in whlist:
-                WeightRules[wh] =1
-        #WeightRules['VBP','VB','VBG','VBZ','VBN','WDT','WP','WP$','WRB'] = 1
-        stop_dict=defaultdict(bool)
-        for word in nltk.corpus.stopwords.words('english'):
-                stop_dict[word] = True
-        resource = {}
-        resource['rules'] = WeightRules
-        resource['stop_words'] = stop_dict
+
+def load_language_resource(idf_file):
+        print("Loading language resources...")
+        idf_dict = load_freqs(idf_file)
+        resource = {'idf_dict': idf_dict}
         return resource
 
-def LoadData(datalist):
-	database = {}
-	for datafile in datalist:
-		f = open(datafile)
-		line = f.readline()
-		f.close()
-		raw_data = json.loads(str(line.strip()))
-		database = PushData(raw_data, database)
-	return database
 
-def PushData(data, database):
-	last = len(database.keys())
-	for pair in data:
-		database[last] = nltk.word_tokenize(pair['question'])
-		last += 1
-		database[last] = nltk.word_tokenize(pair['answer'])
-		last += 1
-	return database
-
-def LoadDataPair(datalist):
-        database = {}
-        database['Q'] = {}
-        database['A'] = {}
+def load_data_pair(datalist):
+        print("Loading data...")
+        database = {'Q': {}, 'A': {}}
 
         for datafile in datalist:
                 f = open(datafile)
                 line = f.readline()
                 f.close()
                 raw_data = json.loads(str(line.strip()))
-                database = PushDataPair(raw_data, database)
+                database = push_data_pair(raw_data, database)
         return database
 
-def PushDataPair(data, database):
+
+def push_data_pair(data, database):
         last = len(database['Q'].keys())
         for pair in data:
-                database['Q'][last] = nltk.word_tokenize(pair['question'])
-                database['A'][last] = nltk.word_tokenize(pair['answer'])
+                database['Q'][last] = pair['question'].split()
+                database['A'][last] = pair['answer'].split()
                 last += 1
         return database
 
-def LoadTemplate(filelist):
-	Library = {}
-	for filepath in filelist:
-		name = path.splitext(path.basename(filepath))[0]
-                if name in ['template_init','template_joke']:
-                    Library[name]={}
-                    for line in open(filepath):
-                        #print line
-                        theme, line_real = line.strip().split(';')
-                        #print theme
-                        try:
-                            Library[name][theme].append(line_real)
-                        except KeyError:
-                            Library[name][theme] = []
-                            Library[name][theme].append(line_real)
-                else:
-                    Library[name] = [line.strip() for line in open(filepath)]
-	return Library
 
-def LoadTopic(topicfile):
-	return [line.strip() for line in open(topicfile)]
+def load_freqs(idf_file):
+        idf_dict = {}
+        with open(idf_file, 'rb') as csvfile:
+                reader = csv.reader(csvfile, delimiter=",", quotechar='|')
+                for line in reader:
+                        word = line[0]
+                        weight = float(line[1])
+                        idf_dict[word] = weight
+        return idf_dict
 
+
+# Read a database and create a  dictionary where key=word in database and value=idf of the word.
+# This was used to create idf_dict.csv and could be reinserted to be used with another database
+#
+# This could be improved by lowercasing and removing punctuation from everything.
+# That would solve problems later on when an input word is lowercased, but all or most examples in the database are not.
+def create_idf_file(database):
+        # freq_dict measures the number of "documents" or phrases in the database that include the target word
+        freq_dict = {}
+        num_docs = 0
+        for idx, utter in database['Q'].items():
+                num_docs += 1
+                for token in set(utter):
+                    if token in freq_dict:
+                            freq_dict[token] += 1
+                    else:
+                            freq_dict[token] = 1
+        for idx, utter in database['A'].items():
+                num_docs += 1
+                for token in set(utter):
+                    if token in freq_dict:
+                            freq_dict[token] += 1
+                    else:
+                            freq_dict[token] = 1
+        print("Created freq_dict")
+        # idf_dict implements inverse document frequency for each word
+        idf_dict = {}
+        for word in freq_dict:
+            idf_dict[word] = math.log(float(num_docs) / float(freq_dict[word]))
+
+        with open('idf_dict.csv', 'wb') as csvfile:
+            idf_writer = csv.writer(csvfile, delimiter=',', quotechar='|')
+            for word in idf_dict:
+                idf_writer.writerow([word.encode('utf-8'), idf_dict[word]])
+
+        return idf_dict
 
