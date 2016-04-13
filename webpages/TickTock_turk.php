@@ -102,7 +102,8 @@
 <p>
 <?php
 
-   echo "<i>TickTock</i>: Please type in the box below and press 'Send Message' to talk to me. <br> <i>TickTock</i>: You can send multiple rounds of messages to me.<br> <i>TickTock</i>: Click 'I am done!' when you don't want to talk to me anymore<br> <i>TickTock</i>: Then you will rate how well I did.<br> <i>TickTock</i>: Now it is your turn to say `Hello' to me!  <br>\n";
+   //echo "<i>TickTock</i>: Please type in the box below and press 'Send Message' to talk to me. <br> <i>TickTock</i>: You can send multiple rounds of messages to me.<br> <i>TickTock</i>: Click 'I am done!' when you don't want to talk to me anymore<br> <i>TickTock</i>: Then you will rate how well I did.<br> <i>TickTock</i>: Now it is your turn to say `Hello' to me!  <br>\n";
+   echo "<i>TickTock</i>: Hi, I'm TickTock! Ask me questions! <br> Type in the box, and hit 'Send Message' to talk to me. <br> WARNING! I represent the raw consciousness of Reddit. I try to be polite, but sometimes I mess up. <br> If I say something offensive, send an email to leah.nh@cs.cmu.edu with what I said, and it won't happen again. <br>\n";
   if(!array_key_exists("user", $_SESSION))
   {
      $_SESSION["user"] = rand();
@@ -169,7 +170,7 @@ window.onload = function() {
 <label>Press Enter to submit<br>
 <i>You</i>: <input type="text" size="50" id="msg1" name="message" onkeypress="return entsub(event,this.form)" ></label></p>
 <p><input type="submit" name="action" value="Send Message"></p>
-<p><input type="submit" name="action" value="I am done!" onclick="return done()"></p>
+//<p><input type="submit" name="action" value="I am done!" onclick="return done()"></p>
 </form>
 
 <?php
