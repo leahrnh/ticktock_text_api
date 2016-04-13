@@ -170,7 +170,6 @@ window.onload = function() {
 <label>Press Enter to submit<br>
 <i>You</i>: <input type="text" size="50" id="msg1" name="message" onkeypress="return entsub(event,this.form)" ></label></p>
 <p><input type="submit" name="action" value="Send Message"></p>
-//<p><input type="submit" name="action" value="I am done!" onclick="return done()"></p>
 </form>
 
 <?php
