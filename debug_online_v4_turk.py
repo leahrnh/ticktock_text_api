@@ -1,21 +1,23 @@
 #!/usr/bin/etc python
 
-import galbackend_online
+import Backend
 import sys
 import socket
 import time
-galbackend_online.InitLogging()
-galbackend_online.InitResource('v3')
-oov_state =1
-name_entity_state =1
-anaphra_state =1
-short_answer_state=1
-previous_history ={}
-word2vec_ranking_state =1
-tfidf_state =1
-policy_mode =1
-user_list =[]
-theme = {}
+Backend.init_resource()
+#dummy intro to get messy stuff out of the way
+#todo: fix error messages
+ans = Backend.get_response("initializing")
+#oov_state =1
+#name_entity_state =1
+#anaphra_state =1
+#short_answer_state=1
+#previous_history ={}
+#word2vec_ranking_state =1
+#tfidf_state =1
+#policy_mode =1
+#user_list =[]
+#theme = {}
 while True:
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         #Log('serversocket')
@@ -30,8 +32,9 @@ while True:
         user_id, user_input_real = user_input.split('|')
 	print user_id
         print user_input_real
-        theme, strategy,response,previous_history, word2vec = galbackend_online.get_response(policy_mode, user_input_real, user_id,previous_history,theme,oov_state,name_entity_state,short_answer_state,anaphra_state,word2vec_ranking_state,tfidf_state)
-        connection.send(response + "|" + str(strategy))
+        #theme, strategy,response,previous_history, word2vec = galbackend_online.get_response(policy_mode, user_input_real, user_id,previous_history,theme,oov_state,name_entity_state,short_answer_state,anaphra_state,word2vec_ranking_state,tfidf_state)
+        ans = ans = Backend.get_response(user_input_real)
+        connection.send(response + "|" + str("strategy"))
         print 'finish sending response'
         serversocket.close()
 
