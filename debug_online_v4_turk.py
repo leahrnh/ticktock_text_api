@@ -33,7 +33,7 @@ while True:
 	print user_id
         print user_input_real
         #theme, strategy,response,previous_history, word2vec = galbackend_online.get_response(policy_mode, user_input_real, user_id,previous_history,theme,oov_state,name_entity_state,short_answer_state,anaphra_state,word2vec_ranking_state,tfidf_state)
-        ans = ans = Backend.get_response(user_input_real)
+        response = Backend.get_response(user_input_real)
         connection.send(response + "|" + str("strategy"))
         print 'finish sending response'
         serversocket.close()
